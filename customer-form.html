@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barber Shop - Customer Queue</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to [Your Barber Shop]</h1>
+        <form id="customerForm">
+            <label for="name">Enter Your Name:</label>
+            <input type="text" id="name" required placeholder="John Doe">
+            
+            <label for="service">Select Service:</label>
+            <select id="service">
+                <option value="Haircut">Haircut</option>
+                <option value="Shave">Shave</option>
+                <option value="Beard Trim">Beard Trim</option>
+            </select>
+            
+            <button type="submit">Join the Queue</button>
+        </form>
+
+        <div id="message"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
