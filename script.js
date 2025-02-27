@@ -1,78 +1,127 @@
-let customers = [];
-let totalSales = 0;
-let totalCustomers = 0;
-let cashPayments = 0;
-let qrPayments = 0;
+// Handle form submission for new customer
+document.getElementById('customer-form').addEventListener('submit', function(event) {
+    event.preventDefault();
 
-// Customer form submission
-document.getElementById("customerForm").addEventListener("submit", function (e) {
-    e.preventDefault();
-    const name = document.getElementById("name").value;
-    const service = document.getElementById("service").value;
-    
-    // Add customer to the queue
-    customers.push({ name, service, id: customers.length + 1 });
-    
-    // Update the queue on the dashboard
-    updateQueue();
-    
-    // Clear form
-    document.getElementById("name").value = '';
+    // Collect customer data
+    const name = document.getElementById('name').value;
+    const sale = parseFloat(document.getElementById('sale').value);
+    const paymentMethod = document.getElementById('payment_method').value;
+
+    // Retrieve customers and sales data from localStorage
+    let customers = JSON.parse(localStorage.getItem('customers')) || [];
+    let totalSales = parseFloat(localStorage.getItem('totalSales')) || 0;
+    let totalCash = parseInt(localStorage.getItem('totalCash')) || 0;
+    let totalQR = parseInt(localStorage.getItem('totalQR')) || 0;
+
+    // Create a new customer
+    const customer = {
+        id: customers.length + 1, // unique customer ID
+        name: name,
+        sale: sale,
+        paymentMethod: paymentMethod
+    };
+
+    // Add customer to list
+    customers.push(customer);
+
+    // Update total sales
+    totalSales += sale;
+    if (paymentMethod === 'cash') {
+        totalCash++;
+    } else {
+        totalQR++;
+    }
+
+    // Save updated data to localStorage
+    localStorage.setItem('customers', JSON.stringify(customers));
+    localStorage.setItem('totalSales', totalSales);
+    localStorage.setItem('totalCash', totalCash);
+    localStorage.setItem('totalQR', totalQR);
+
+    // Update customer list and summary
+    displayCustomers();
+    displaySummary();
 });
 
-// Update the queue on the barber's dashboard
-function updateQueue() {
-    const queueList = document.getElementById("customerQueue");
-    queueList.innerHTML = '';
+// Display customer list and summary
+function displayCustomers() {
+    const customers = JSON.parse(localStorage.getItem('customers')) || [];
+    const customerList = document.getElementById('customer-list');
+    const customerSelect = document.getElementById('customer-id');
+    customerList.innerHTML = '';
+    customerSelect.innerHTML = '';
+
     customers.forEach(customer => {
-        const li = document.createElement("li");
-        li.textContent = `${customer.name} - ${customer.service}`;
-        li.addEventListener("click", function () {
-            selectCustomer(customer);
-        });
-        queueList.appendChild(li);
+        // Display customer info in the list
+        customerList.innerHTML += `<p><strong>${customer.name}</strong> - $${customer.sale.toFixed(2)} (${customer.paymentMethod})</p>`;
+
+        // Populate dropdown for customer selection
+        const option = document.createElement('option');
+        option.value = customer.id;
+        option.textContent = customer.name;
+        customerSelect.appendChild(option);
     });
 }
 
-// Select customer for service
-function selectCustomer(customer) {
-    document.getElementById("customerName").textContent = customer.name;
-    document.getElementById("customerService").textContent = customer.service;
-    document.getElementById("selectedCustomer").style.display = 'block';
+// Display sales summary (total sales, cash, and QR)
+function displaySummary() {
+    const totalSales = parseFloat(localStorage.getItem('totalSales')) || 0;
+    const totalCash = parseInt(localStorage.getItem('totalCash')) || 0;
+    const totalQR = parseInt(localStorage.getItem('totalQR')) || 0;
+
+    document.getElementById('total-sales').textContent = `$${totalSales.toFixed(2)}`;
+    document.getElementById('total-cash').textContent = totalCash;
+    document.getElementById('total-qr').textContent = totalQR;
 }
 
-// Record sale
-document.getElementById("recordSale").addEventListener("click", function () {
-    const amount = parseFloat(document.getElementById("amount").value);
-    const paymentMethod = document.getElementById("paymentMethod").value;
-    
-    // Update totals
-    totalSales += amount;
-    totalCustomers++;
-    
-    if (paymentMethod === 'Cash') {
-        cashPayments++;
-    } else {
-        qrPayments++;
+// Handle form submission for updating customer sale
+document.getElementById('sale-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const customerId = parseInt(document.getElementById('customer-id').value);
+    const newSale = parseFloat(document.getElementById('new-sale').value);
+
+    let customers = JSON.parse(localStorage.getItem('customers')) || [];
+    let totalSales = parseFloat(localStorage.getItem('totalSales')) || 0;
+    let totalCash = parseInt(localStorage.getItem('totalCash')) || 0;
+    let totalQR = parseInt(localStorage.getItem('totalQR')) || 0;
+
+    // Find the customer and update the sale
+    const customer = customers.find(c => c.id === customerId);
+    if (customer) {
+        // Update total sales and the customer sale
+        totalSales -= customer.sale;  // Remove previous sale
+        totalSales += newSale;         // Add new sale
+        customer.sale = newSale;       // Update the customer's sale
+
+        // Update payment counts if payment method changed
+        if (customer.paymentMethod === 'cash') {
+            totalCash--;
+        } else {
+            totalQR--;
+        }
+        if (newSale > 0) {
+            if (customer.paymentMethod === 'cash') {
+                totalCash++;
+            } else {
+                totalQR++;
+            }
+        }
+
+        // Save updated data to localStorage
+        localStorage.setItem('customers', JSON.stringify(customers));
+        localStorage.setItem('totalSales', totalSales);
+        localStorage.setItem('totalCash', totalCash);
+        localStorage.setItem('totalQR', totalQR);
+
+        // Refresh customer list and sales summary
+        displayCustomers();
+        displaySummary();
     }
-    
-    // Update session summary
-    updateSessionSummary();
-    
-    // Clear input
-    document.getElementById("amount").value = '';
 });
 
-// Update session summary
-function updateSessionSummary() {
-    document.getElementById("totalSales").textContent = `$${totalSales.toFixed(2)}`;
-    document.getElementById("totalCustomers").textContent = totalCustomers;
-    document.getElementById("cashPayments").textContent = cashPayments;
-    document.getElementById("qrPayments").textContent = qrPayments;
-}
-
-// End session and hide selected customer interface
-document.getElementById("endSession").addEventListener("click", function () {
-    document.getElementById("sessionSummary").style.display = 'none';
-    alert("Session Closed! Sales and customer data have been recorded.");
+// Initialize customer data and display when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    displayCustomers();
+    displaySummary();
 });
