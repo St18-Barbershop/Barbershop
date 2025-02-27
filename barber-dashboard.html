@@ -3,41 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barber Dashboard</title>
+    <title>Barber Shop Dashboard</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>Barber Dashboard</h1>
-        
-        <h2>Customer Queue</h2>
-        <ul id="customerQueue"></ul>
-        
-        <h3>Selected Customer:</h3>
-        <div id="selectedCustomer">
-            <p>Name: <span id="customerName"></span></p>
-            <p>Service: <span id="customerService"></span></p>
-            
-            <label for="amount">Sale Amount:</label>
-            <input type="number" id="amount" placeholder="Enter sale amount">
-            
-            <label for="paymentMethod">Payment Method:</label>
-            <select id="paymentMethod">
-                <option value="Cash">Cash</option>
-                <option value="QR">QR</option>
-            </select>
-            
-            <button id="recordSale">Record Sale</button>
-        </div>
+        <h1>Barber Shop Dashboard</h1>
 
-        <div id="sessionSummary">
-            <h3>Session Summary</h3>
-            <p>Total Sales: <span id="totalSales">$0</span></p>
-            <p>Total Customers: <span id="totalCustomers">0</span></p>
-            <p>Cash Payments: <span id="cashPayments">0</span></p>
-            <p>QR Payments: <span id="qrPayments">0</span></p>
-            <button id="endSession">End Session</button>
-        </div>
+        <!-- Barber Dashboard Form to Add Customer -->
+        <form id="customer-form">
+            <label for="name">Customer Name:</label>
+            <input type="text" id="name" name="name" required>
+
+            <label for="sale">Sale Amount ($):</label>
+            <input type="number" id="sale" name="sale" required>
+
+            <label for="payment_method">Payment Method:</label>
+            <select name="payment_method" id="payment_method">
+                <option value="cash">Cash</option>
+                <option value="qr">QR Code</option>
+            </select>
+
+            <button type="submit">Add Customer</button>
+        </form>
+
+        <h2>Customer List:</h2>
+        <div id="customer-list"></div>
+
+        <h2>Session Summary:</h2>
+        <p>Total Sales: <span id="total-sales">$0.00</span></p>
+        <p>Total Cash Payments: <span id="total-cash">0</span></p>
+        <p>Total QR Payments: <span id="total-qr">0</span></p>
+
+        <h2>Manage Sales:</h2>
+        <form id="sale-form">
+            <label for="customer-id">Select Customer:</label>
+            <select id="customer-id">
+                <!-- Dynamic Customer IDs -->
+            </select>
+
+            <label for="new-sale">New Sale Amount ($):</label>
+            <input type="number" id="new-sale" required>
+
+            <button type="submit">Update Sale</button>
+        </form>
+
     </div>
 
     <script src="script.js"></script>
